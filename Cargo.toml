@@ -1,5 +1,5 @@
 [package]
-name = "practice"
+name = "jtop"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,5 @@ edition = "2021"
 
 [dependencies]
 axum = "0.7.4"
-serde = "1.0.197"
 sysinfo = "0.30.7"
 tokio = { version = "1.36.0", features = ["full"] }

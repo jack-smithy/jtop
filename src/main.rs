@@ -1,14 +1,20 @@
-use sysinfo::System;
 use std::sync::{Arc, Mutex};
+use sysinfo::System;
 
-use axum::{routing, Router, Json, extract::State, response::IntoResponse};
+use axum::{
+    extract::State,
+    response::{Html, IntoResponse},
+    routing, Json, Router,
+};
 
 #[tokio::main]
 async fn main() {
     let app = Router::new()
         .route("/", routing::get(root_get))
         .route("/api/cpus", routing::get(cpus_get))
-        .with_state(AppState {sys: Arc::new(Mutex::new(System::new()))});
+        .with_state(AppState {
+            sys: Arc::new(Mutex::new(System::new())),
+        });
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
@@ -21,7 +27,6 @@ struct AppState {
 }
 
 async fn cpus_get(State(state): State<AppState>) -> impl IntoResponse {
-
     let mut sys = state.sys.lock().unwrap();
 
     sys.refresh_cpu();
@@ -31,6 +36,7 @@ async fn cpus_get(State(state): State<AppState>) -> impl IntoResponse {
     Json(v)
 }
 
-async fn root_get() -> &'static str {
-    "Hello"
+async fn root_get() -> impl IntoResponse {
+    let markup = tokio::fs::read_to_string("src/index.html").await.unwrap();
+    Html(markup)
 }
