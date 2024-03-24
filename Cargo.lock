@@ -365,6 +365,7 @@ name = "jtop"
 version = "0.1.0"
 dependencies = [
  "axum",
+ "serde",
  "sysinfo",
  "tokio",
 ]

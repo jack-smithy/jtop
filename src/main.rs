@@ -1,12 +1,12 @@
-use std::sync::{Arc, Mutex};
-use sysinfo::System;
-
 use axum::{
     extract::State,
     http::Response,
     response::{Html, IntoResponse},
     routing, Json, Router,
 };
+use serde::Serialize;
+use std::sync::{Arc, Mutex};
+use sysinfo::System;
 
 #[tokio::main]
 async fn main() {
@@ -28,6 +28,12 @@ struct AppState {
     sys: Arc<Mutex<System>>,
 }
 
+#[derive(Debug, Serialize)]
+struct DataResponse {
+    labels: Vec<i32>,
+    values: Vec<f32>,
+}
+
 async fn cpus_get(State(state): State<AppState>) -> impl IntoResponse {
     let mut sys = state.sys.lock().unwrap();
 
@@ -35,11 +41,22 @@ async fn cpus_get(State(state): State<AppState>) -> impl IntoResponse {
 
     let v: Vec<_> = sys.cpus().iter().map(|cpu| cpu.cpu_usage()).collect();
 
-    Json(v)
+    let data = DataResponse {
+        values: v.clone(),
+        labels: v
+            .clone()
+            .iter()
+            .enumerate()
+            .map(|(i, _)| (i + 1) as i32)
+            .collect(),
+    };
+
+    Json(data)
 }
 
 async fn root_get() -> impl IntoResponse {
     let markup = tokio::fs::read_to_string("src/index.html").await.unwrap();
+
     Html(markup)
 }
 
