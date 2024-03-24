@@ -42,6 +42,7 @@ async fn root_get() -> impl IntoResponse {
     let markup = tokio::fs::read_to_string("src/index.html").await.unwrap();
     Html(markup)
 }
+
 async fn indexjs_get() -> impl IntoResponse {
     let markup = tokio::fs::read_to_string("src/index.js").await.unwrap();
 
